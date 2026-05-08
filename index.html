@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>BreedLink - Modern Breeder Hub</title>
+  <link rel="stylesheet" href="css/general/main.css">
+  <link rel="stylesheet" href="css/general/components.css">
+  <link rel="stylesheet" href="css/general/responsive.css">
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+  <div class="page-loader" id="pageLoader">
+    <div class="loader"></div>
+  </div>
+  <div class="bg-animation"></div>
+  <header class="navigation" id="navbar">
+    <div class="nav-container">
+      <div class="nav-left">
+        <div class="logo" onclick="window.location.href='index.html'">
+          <img src="https://raw.githubusercontent.com/himeh-pers/Breed-Link/refs/heads/main/68dbf8_3ea8704de93746e69e5a47c1a6bf8b17%7Emv2.png" alt="BreedLink">
+        </div>
+      </div>
+      <div class="nav-center">
+        <nav class="menu">
+          <a href="index.html" id="nav-home">Home</a>
+          <a href="html/about.html" id="nav-about">About</a>
+          <a href="html/swipe.html" id="nav-breeders">Breeders</a>
+        </nav>
+      </div>
+      <div class="nav-right" id="navRight">
+        <button class="message-btn" id="messageBtn" onclick="openMessenger()" title="Messages" style="display: none;">
+          💬
+          <span class="message-badge" id="messageBadge" style="display: none;">0</span>
+        </button>
+        <div class="profile-menu-container" id="profileMenuContainer" style="display: none;">
+          <button class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown()">
+            <span class="default-avatar">👤</span>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <a href="html/profile.html" class="profile-dropdown-item"><span>👁️</span> View Profile</a>
+            <a href="html/profile.html?edit=true" class="profile-dropdown-item" onclick="sessionStorage.setItem('enableEdit', 'true');"><span>✏️</span> Customize Profile</a>
+            <div class="profile-dropdown-divider"></div>
+            <button class="profile-dropdown-item logout" onclick="handleLogout()"><span>🚪</span> Logout</button>
+          </div>
+        </div>
+        <div class="guest-options" id="guestOptions">
+          <a href="html/login.html" class="guest-btn signin">Sign In</a>
+          <a href="html/sign_up.html" class="guest-btn signup">Sign Up</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="messenger-overlay" id="messengerOverlay">
+    <div class="messenger-modal">
+      <div class="messenger-header">
+        <h3>💬 Messages</h3>
+        <button class="messenger-close" onclick="closeMessenger()">×</button>
+      </div>
+      <div class="messenger-contacts" id="messengerContacts">
+        <div class="messenger-search">
+          <input type="text" id="messengerSearch" placeholder="Search contacts..." oninput="searchContacts(this.value)">
+        </div>
+        <div id="contactsList"></div>
+      </div>
+      <div class="messenger-chat" id="messengerChat">
+        <div class="messenger-chat-header">
+          <button class="messenger-back" onclick="backToContacts()">←</button>
+          <img src="" alt="" id="chatAvatar" style="width: 36px; height: 36px; border-radius: 50%;">
+          <span id="chatName" style="font-weight: 600;"></span>
+        </div>
+        <div class="messenger-messages" id="chatMessages"></div>
+        <div class="messenger-input-area">
+          <button class="messenger-attach" onclick="document.getElementById('messengerFile').click()" title="Send image">📷</button>
+          <input type="file" id="messengerFile" accept="image/*" style="display: none;" onchange="sendImage(this)">
+          <input type="text" class="messenger-input" id="messengerInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+          <button class="messenger-send" onclick="sendMessage()">➤</button>
+        </div>
+      </div>
+      <div class="messenger-empty" id="messengerEmpty">
+        <div class="messenger-empty-icon">💬</div>
+        <p>Select a contact to start messaging</p>
+      </div>
+    </div>
+  </div>
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-badge">🚀 Now Live in Butuan</div>
+        <h1>The Future of Animal Breeding</h1>
+        <p>Connect with verified breeders, track genetic lineages, and find perfect matches using our AI-powered platform.</p>
+        <div class="hero-buttons">
+          <a href="html/login.html" class="btn btn-primary">Get Started →</a>
+          <a href="html/about.html" class="btn btn-secondary">Learn More</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-image-container">
+          <img src="https://raw.githubusercontent.com/himeh-pers/Breed-Link/refs/heads/main/goat.avif" alt="Breeding Excellence">
+        </div>
+        <div class="floating-card card-1">
+          <strong>2,500+</strong>
+          <small>Active Breeders</small>
+        </div>
+        <div class="floating-card card-2">
+          <strong>⭐ 4.9</strong>
+          <small>User Rating</small>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="features-section">
+    <div class="section-header reveal">
+      <h2>Why Choose BreedLink?</h2>
+      <p>Everything you need to manage your breeding program in one powerful platform</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">🔍</div>
+        <h3>Verified Records</h3>
+        <p>Every breeder is verified by licensed veterinarians. Access complete health histories and genetic documentation instantly.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">🧬</div>
+        <h3>Genetic Matching</h3>
+        <p>Our AI algorithm analyzes genetic compatibility to suggest optimal breeding pairs for healthier offspring.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">💬</div>
+        <h3>Direct Messaging</h3>
+        <p>Connect directly with breeders, veterinarians, and experts through our secure messaging platform.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">📊</div>
+        <h3>Analytics Dashboard</h3>
+        <p>Track breeding performance, litter statistics, and health metrics with beautiful visualizations.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">🏆</div>
+        <h3>Reputation System</h3>
+        <p>Build trust with our transparent rating system. Verified reviews from real breeders.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">🔒</div>
+        <h3>Secure Platform</h3>
+        <p>Bank-level encryption protects your data. Your breeding records are safe with us.</p>
+      </div>
+    </div>
+  </section>
+  <section class="stats-section">
+    <div class="stats-container">
+      <div class="stat-item reveal">
+        <div class="stat-number" data-target="2500">0</div>
+        <div class="stat-label">Active Breeders</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-number" data-target="15000">0</div>
+        <div class="stat-label">Animals Listed</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-number" data-target="98">0</div>
+        <div class="stat-label">% Satisfaction</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-number" data-target="45">0</div>
+        <div class="stat-label">Breeds Supported</div>
+      </div>
+    </div>
+  </section>
+  <section class="cta-section">
+    <div class="cta-container reveal">
+      <div class="cta-content">
+        <h2>Join Our Community</h2>
+        <p>Whether you're a seasoned breeder or just starting out, BreedLink has the tools and community to support your journey.</p>
+        <a href="html/sign_up.html" class="btn btn-primary">Create Free Account →</a>
+      </div>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="footer-content">
+      <h3>THE HUB FOR ALL ANIMAL BREEDERS</h3>
+      <p>Butuan City, Agusan del Norte, Philippines 8600<br>
+      <a href="tel:+6308581543211">+63 (085) 815-4321</a> • 
+      <a href="mailto:community@breedlink.com">community@breedlink.com</a></p>
+    </div>
+  </footer>
+  <script src="js/config.js"></script>
+  <script src="js/general/utils.js"></script>
+  <script src="js/general/auth.js"></script>
+  <script src="js/general/main.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>

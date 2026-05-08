@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Alex Breeder - Profile | BreedLink</title>
+  <title>Profile | BreedLink</title>
   <link rel="stylesheet" href="../css/general/main.css">
   <link rel="stylesheet" href="../css/general/components.css">
   <link rel="stylesheet" href="../css/general/responsive.css">
@@ -95,7 +95,7 @@
         </div>
       </div>
       <div class="profile-name" id="profileNameDisplay">
-        <span id="profileName">Alex Breeder</span>
+        <span id="profileName"></span>
         <button class="edit-name-btn" onclick="editName()">✏️</button>
       </div>
       <div class="tags" id="tagsContainer"></div>
@@ -107,14 +107,14 @@
         <div class="bio-content" id="bioContent"></div>
       </div>
       <div class="contact-info" id="contactInfo">
-        <div class="contact-item" id="contactEmail"><span>📧</span> <span>alex.breeder@breedlink.com</span></div>
-        <div class="contact-item" id="contactPhone"><span>📱</span> <span>+63 912 345 6789</span></div>
-        <div class="contact-item" id="contactLocation"><span>📍</span> <span>Butuan City, Philippines</span></div>
+        <div class="contact-item" id="contactEmail"><span>📧</span> <span></span></div>
+        <div class="contact-item" id="contactPhone"><span>📱</span> <span></span></div>
+        <div class="contact-item" id="contactLocation"><span>📍</span> <span></span></div>
         <button class="edit-contact-btn" onclick="openContactModal()" title="Edit contact info">✏️</button>
       </div>
       <div class="stats">
         <div class="stat-box" onclick="showConnections()">
-          <span class="stat-number" id="connectionsCount">248</span>
+          <span class="stat-number" id="connectionsCount">0</span>
           <span class="stat-label">Connections</span>
         </div>
         <div class="stat-box" onclick="showBioModal()">
@@ -122,11 +122,11 @@
           <span class="stat-label">Bio / About</span>
         </div>
         <div class="stat-box" onclick="showLitters()">
-          <span class="stat-number" id="littersCount">12</span>
+          <span class="stat-number" id="littersCount">0</span>
           <span class="stat-label">Litters</span>
         </div>
         <div class="stat-box" onclick="showReviews()">
-          <span class="stat-number" id="reviewsCount">4.8</span>
+          <span class="stat-number" id="reviewsCount">0</span>
           <span class="stat-label">Reviews</span>
         </div>
       </div>
@@ -184,7 +184,7 @@
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('nameModal')">×</button>
       <h3>✏️ Edit Profile Name</h3>
-      <input type="text" id="nameInput" placeholder="Enter your name" value="Alex Breeder">
+      <input type="text" id="nameInput" placeholder="Enter your name">
       <div class="modal-buttons">
         <button class="save-btn" onclick="saveName()">💾 Save Name</button>
         <button class="cancel-btn" onclick="closeModal('nameModal')">❌ Cancel</button>
@@ -251,9 +251,9 @@
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('contactModal')">×</button>
       <h3>✏️ Edit Contact Information</h3>
-      <input type="email" id="contactEmailInput" placeholder="Email" value="alex.breeder@breedlink.com">
-      <input type="tel" id="contactPhoneInput" placeholder="Phone" value="+63 912 345 6789">
-      <input type="text" id="contactLocationInput" placeholder="Location" value="Butuan City, Philippines">
+      <input type="email" id="contactEmailInput" placeholder="Email">
+      <input type="tel" id="contactPhoneInput" placeholder="Phone">
+      <input type="text" id="contactLocationInput" placeholder="Location">
       <div class="modal-buttons">
         <button class="save-btn" onclick="saveContact()">💾 Save</button>
         <button class="cancel-btn" onclick="closeModal('contactModal')">❌ Cancel</button>

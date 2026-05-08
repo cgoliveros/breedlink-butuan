@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Login | BreedLink</title>
+  <link rel="stylesheet" href="../css/general/main.css">
+  <link rel="stylesheet" href="../css/general/components.css">
+  <link rel="stylesheet" href="../css/general/responsive.css">
+  <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+  <div class="bg-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo-container">
+        <img src="https://raw.githubusercontent.com/himeh-pers/Breed-Link/refs/heads/main/68dbf8_3ea8704de93746e69e5a47c1a6bf8b17%7Emv2.png" alt="BreedLink">
+      </div>
+      <div class="login-header">
+        <h2>Welcome Back</h2>
+        <p>Sign in to your breeder account</p>
+      </div>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-wrapper">
+            <input type="email" class="form-input" id="email" placeholder="breeder@example.com" value="alex@breedlink.com" required>
+            <span class="input-icon">📧</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper">
+            <input type="password" class="form-input" id="password" placeholder="••••••••" value="12345678" required>
+            <span class="input-icon">🔒</span>
+            <button type="button" class="password-toggle" onclick="togglePassword('password', this)">👁️</button>
+          </div>
+        </div>
+        <div class="forgot-password">
+          <a href="#">Forgot password?</a>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">
+          Sign In →
+        </button>
+      </form>
+      <div class="divider">
+        <span>or continue with</span>
+      </div>
+      <div class="social-login">
+        <button type="button" class="social-btn" title="Google">G</button>
+        <button type="button" class="social-btn" title="Facebook">f</button>
+        <button type="button" class="social-btn" title="Apple">🍎</button>
+      </div>
+      <div class="signup-link">
+        Don't have an account? <a href="sign_up.html">Create one</a>
+      </div>
+      <div class="back-home">
+        <a href="../index.html">← Back to Home</a>
+      </div>
+    </div>
+  </div>
+  <script src="../js/config.js"></script>
+  <script src="../js/general/utils.js"></script>
+  <script src="../js/general/auth.js"></script>
+</body>
+</html>

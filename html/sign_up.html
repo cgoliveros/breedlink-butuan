@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Create Account | BreedLink</title>
+  <link rel="stylesheet" href="../css/general/main.css">
+  <link rel="stylesheet" href="../css/general/components.css">
+  <link rel="stylesheet" href="../css/general/responsive.css">
+  <link rel="stylesheet" href="../css/sign_up.css">
+</head>
+<body>
+  <div class="bg-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+  <div class="signup-container">
+    <div class="signup-card">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 33%"></div>
+        <div class="step active" id="step1">1</div>
+        <div class="step" id="step2">2</div>
+        <div class="step" id="step3">3</div>
+      </div>
+      <div class="logo-container">
+        <img src="https://raw.githubusercontent.com/himeh-pers/Breed-Link/refs/heads/main/68dbf8_3ea8704de93746e69e5a47c1a6bf8b17%7Emv2.png" alt="BreedLink">
+      </div>
+      <div class="signup-header">
+        <h2>Create Account</h2>
+        <p id="stepText">Let's start with the basics</p>
+      </div>
+      <div class="form-step active" id="formStep1">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="fullName" placeholder="John Doe" value="Alex Breeder">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="email" placeholder="breeder@example.com" value="alex@breedlink.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" class="form-input" id="phone" placeholder="+63 XXX XXX XXXX">
+        </div>
+        <button class="btn btn-primary" onclick="nextStep(2)">
+          Continue →
+        </button>
+      </div>
+      <div class="form-step" id="formStep2">
+        <p style="margin-bottom: 15px; color: var(--text-secondary); font-size: 14px;">I am a...</p>
+        <div class="account-types">
+          <div class="account-type selected" onclick="selectType(this, 'breeder')">
+            <span class="icon">🐕</span>
+            <span class="label">Breeder</span>
+          </div>
+          <div class="account-type" onclick="selectType(this, 'farmer')">
+            <span class="icon">🐄</span>
+            <span class="label">Farmer</span>
+          </div>
+          <div class="account-type" onclick="selectType(this, 'vet')">
+            <span class="icon">🩺</span>
+            <span class="label">Veterinarian</span>
+          </div>
+          <div class="account-type" onclick="selectType(this, 'enthusiast')">
+            <span class="icon">❤️</span>
+            <span class="label">Pet Lover</span>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="prevStep(1)">← Back</button>
+          <button class="btn btn-primary" onclick="nextStep(3)">Continue →</button>
+        </div>
+      </div>
+      <div class="form-step" id="formStep3">
+        <div class="form-group">
+          <label class="form-label">Create Password</label>
+          <div class="input-wrapper">
+            <input type="password" class="form-input" id="password" placeholder="Min 8 characters" oninput="updatePasswordStrength(this, document.getElementById('passwordStrength'))">
+            <button type="button" class="password-toggle" onclick="togglePassword('password', this)">👁️</button>
+          </div>
+          <div class="password-strength" id="passwordStrength">
+            <div class="strength-bar">
+              <div class="strength-segment" id="seg1"></div>
+              <div class="strength-segment" id="seg2"></div>
+              <div class="strength-segment" id="seg3"></div>
+            </div>
+            <div class="strength-text" id="strengthText">
+              <span>⚪</span> Enter a password
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <div class="input-wrapper">
+            <input type="password" class="form-input" id="confirmPassword" placeholder="Repeat password">
+            <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)">👁️</button>
+          </div>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="terms" checked>
+          <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="prevStep(2)">← Back</button>
+          <button class="btn btn-primary" id="createBtn" onclick="createAccount()">Create Account</button>
+        </div>
+      </div>
+      <div class="success-state" id="successState">
+        <div class="success-icon">✓</div>
+        <h3>Welcome Aboard!</h3>
+        <p>Your account has been created successfully.</p>
+        <button class="btn btn-primary" onclick="window.location.href='profile.html'">
+          Go to Profile →
+        </button>
+      </div>
+      <div class="login-link">
+        Already have an account? <a href="login.html">Sign in</a>
+      </div>
+    </div>
+  </div>
+  <script src="../js/config.js"></script>
+  <script src="../js/general/utils.js"></script>
+  <script src="../js/general/auth.js"></script>
+  <script src="../js/sign_up.js"></script>
+</body>
+</html>

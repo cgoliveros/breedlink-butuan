@@ -161,20 +161,6 @@
       cursor: default;
     }
 
-    .card-1 {
-      top: -20px;
-      left: -30px;
-      animation: floatScale 3s ease-in-out infinite;
-      animation-delay: 0s;
-    }
-
-    .card-2 {
-      bottom: -20px;
-      right: -30px;
-      animation: floatScale 3s ease-in-out infinite;
-      animation-delay: 0.5s;
-    }
-
     @keyframes floatScale {
       0% {
         transform: translateY(0) translateX(0) scale(1);

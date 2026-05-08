@@ -57,20 +57,6 @@ function checkAuthAndUpdateNav() {
       `;
     }
   }
-
-  const currentPage = window.location.pathname.split('/').pop() || 'home.html';
-  const pageMap = {
-    'home.html': 'nav-home',
-    'about.html': 'nav-about',
-    'swipe.html': 'nav-breeders',
-  };
-
-  document.querySelectorAll('.menu a').forEach(link => link.classList.remove('active'));
-  const activeId = pageMap[currentPage];
-  if (activeId) {
-    const activeLink = document.getElementById(activeId);
-    if (activeLink) activeLink.classList.add('active');
-  }
 }
 
 function initModalCloseOnOutsideClick() {
@@ -162,6 +148,9 @@ function trackPageView(pageName) {
 
 document.addEventListener('DOMContentLoaded', function() {
   checkAuthAndUpdateNav();
+  if (typeof initNavigation === 'function') {
+    initNavigation();
+  }
   if (typeof protectSwipePage === 'function') {
     protectSwipePage();
   }
@@ -194,6 +183,9 @@ window.addEventListener('popstate', function() {
   }
   if (typeof initProfile === 'function') {
     initProfile();
+  }
+  if (typeof initNavigation === 'function') {
+    initNavigation();
   }
 });
 

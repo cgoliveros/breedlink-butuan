@@ -28,14 +28,13 @@ let profileData = {
   tags: [],
   contact: { email: '', phone: '', location: '' },
   stats: { connections: 0, litters: 0, rating: 0 },
-  profileImg: '../html/assets/animals/doge.png',
+  profileImg: '',
   coverImg: 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=1200'
 };
 
 let posts = [];
 let animals = [];
 
-// Messenger data (will be populated by API)
 let mockContacts = [];
 let mockMessages = {};
 let currentChatId = null;
@@ -44,6 +43,7 @@ let currentPostId = null;
 let currentAnimalId = null;
 let currentComment = null;
 
+// ------------------------- Helpers -------------------------
 function openModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
@@ -76,6 +76,54 @@ function escapeHtml(str) {
     if (m === "'") return '&#039;';
     return m;
   });
+}
+
+function formatDate(dateStr, timeOnly) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    if (timeOnly) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const now = new Date();
+    const diff = now - d;
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return d.toLocaleDateString();
+  } catch (e) {
+    return dateStr;
+  }
+}
+
+function showToast(message, type = 'success') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = `toast${type === 'error' ? ' error' : ''}`;
+  toast.innerHTML = `<span>${type === 'error' ? '❌' : '✅'}</span> ${message}`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard?.writeText(text).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  });
+}
+
+function openLightbox(src) {
+  const img = document.getElementById('lightboxImg');
+  if (img) img.src = src;
+  openModal('lightboxModal');
 }
 
 function previewImage(input, previewId) {
@@ -121,21 +169,7 @@ function previewPostImage(input, previewContainerId) {
     img.style.border = '1px solid var(--border-light)';
     const removeBtn = document.createElement('button');
     removeBtn.innerHTML = '×';
-    removeBtn.style.position = 'absolute';
-    removeBtn.style.top = '8px';
-    removeBtn.style.right = '8px';
-    removeBtn.style.width = '30px';
-    removeBtn.style.height = '30px';
-    removeBtn.style.borderRadius = '50%';
-    removeBtn.style.background = 'rgba(0,0,0,0.6)';
-    removeBtn.style.color = 'white';
-    removeBtn.style.border = 'none';
-    removeBtn.style.cursor = 'pointer';
-    removeBtn.style.fontSize = '20px';
-    removeBtn.style.display = 'flex';
-    removeBtn.style.alignItems = 'center';
-    removeBtn.style.justifyContent = 'center';
-    removeBtn.style.transition = 'all 0.2s';
+    removeBtn.style.cssText = 'position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.6);color:white;border:none;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;';
     removeBtn.onmouseover = function() { this.style.background = 'rgba(255,0,0,0.8)'; this.style.transform = 'scale(1.1)'; };
     removeBtn.onmouseout = function() { this.style.background = 'rgba(0,0,0,0.6)'; this.style.transform = 'scale(1)'; };
     removeBtn.onclick = function(e) {
@@ -179,20 +213,35 @@ function previewMultipleFiles(input, containerId, type) {
   });
 }
 
+// ------------------------- Contact DOM Update -------------------------
+function updateContactDOM() {
+  const emailSpan = document.querySelector('#contactEmail span:last-child');
+  const phoneSpan = document.querySelector('#contactPhone span:last-child');
+  const locationSpan = document.querySelector('#contactLocation span:last-child');
+  if (emailSpan) emailSpan.textContent = profileData.contact.email || '';
+  if (phoneSpan) phoneSpan.textContent = profileData.contact.phone || '';
+  if (locationSpan) locationSpan.textContent = profileData.contact.location || '';
+}
+
 // ------------------------- API Data Loaders -------------------------
 async function loadProfile() {
   try {
     const user = await API.get('/user');
-    profileData.name = user.name || '';
-    profileData.bio = user.bio || '';
-    profileData.tags = user.tags || [];
-    profileData.contact = user.contact || { email: user.email, phone: '', location: '' };
-    profileData.stats = user.stats || { connections: 0, litters: 0, rating: 0 };
-    profileData.profileImg = user.profilePicture || '../html/assets/animals/doge.png';
-    profileData.coverImg = user.coverPhoto || 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=1200';
+    profileData.name        = user.name || '';
+    profileData.bio         = user.bio || '';
+    profileData.tags        = user.tags || [];
+    profileData.contact     = user.contact || { email: user.email || '', phone: '', location: '' };
+    profileData.stats       = user.stats || { connections: 0, litters: 0, rating: 0 };
+    profileData.profileImg  = user.profilePicture || user.avatar || '';
+    profileData.coverImg    = user.coverPhoto || 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=1200';
+
+    localStorage.setItem('breedlink_user', JSON.stringify(user));
+
     updateProfileUI();
+    updateContactDOM();
   } catch (err) {
-    showToast('Failed to load profile', 'error');
+    console.error('loadProfile error:', err);
+    showToast('Could not refresh profile from server', 'error');
   }
 }
 
@@ -223,7 +272,6 @@ function updateAllPostsAuthorImg() {
 }
 
 function enableEditMode() {
-  console.log('Enabling edit mode');
   isEditMode = true;
   updateProfileUI();
   renderPosts();
@@ -234,28 +282,46 @@ function enableEditMode() {
 function updateProfileUI() {
   const profileName = document.getElementById('profileName');
   if (profileName) profileName.textContent = profileData.name;
+
   const bioContent = document.getElementById('bioContent');
-  if (bioContent) bioContent.innerHTML = profileData.bio.split('\n').filter(p => p.trim()).map(p => `<p>${escapeHtml(p)}</p>`).join('');
+  if (bioContent) {
+    bioContent.innerHTML = profileData.bio
+      ? profileData.bio.split('\n').filter(p => p.trim()).map(p => `<p>${escapeHtml(p)}</p>`).join('')
+      : '<p style="color:var(--text-muted);font-style:italic;">No bio yet.</p>';
+  }
+
   const connectionsCount = document.getElementById('connectionsCount');
   if (connectionsCount) connectionsCount.textContent = profileData.stats.connections;
   const littersCount = document.getElementById('littersCount');
   if (littersCount) littersCount.textContent = animals.length;
   const reviewsCount = document.getElementById('reviewsCount');
   if (reviewsCount) reviewsCount.textContent = profileData.stats.rating;
+
   const tagsContainer = document.getElementById('tagsContainer');
   if (tagsContainer) {
-    tagsContainer.innerHTML = profileData.tags.map(tag => `<span class="tag">${escapeHtml(tag)} ${isEditMode ? '<span class="remove-tag" onclick="removeTag(this)">×</span>' : ''}</span>`).join('') + (isEditMode ? '<button class="add-tag-btn" onclick="addNewTag()">➕ Add Tag</button>' : '');
+    tagsContainer.innerHTML =
+      profileData.tags.map(tag =>
+        `<span class="tag">${escapeHtml(tag)} ${isEditMode ? '<span class="remove-tag" onclick="removeTag(this)">×</span>' : ''}</span>`
+      ).join('') +
+      (isEditMode ? '<button class="add-tag-btn" onclick="addNewTag()">➕ Add Tag</button>' : '');
   }
-  const editButtons = document.querySelectorAll('.edit-name-btn, .edit-bio-btn, .edit-contact-btn, .add-animal-btn');
-  editButtons.forEach(btn => { if (btn) btn.style.display = isEditMode ? 'flex' : 'none'; });
+
+  document.querySelectorAll('.edit-name-btn, .edit-bio-btn, .edit-contact-btn, .add-animal-btn').forEach(btn => {
+    if (btn) btn.style.display = isEditMode ? 'flex' : 'none';
+  });
   const coverOverlay = document.querySelector('.cover-overlay');
   if (coverOverlay) coverOverlay.style.display = isEditMode ? 'flex' : 'none';
   const profileImgOverlay = document.querySelector('.profile-img-overlay');
   if (profileImgOverlay) profileImgOverlay.style.display = isEditMode ? 'flex' : 'none';
   const addTagBtn = document.querySelector('.add-tag-btn');
   if (addTagBtn) addTagBtn.style.display = isEditMode ? 'inline-flex' : 'none';
+
   const profileImg = document.getElementById('profileImg');
-  if (profileImg) profileImg.src = profileData.profileImg;
+  if (profileImg) {
+    profileImg.src = profileData.profileImg || 'https://via.placeholder.com/160x160?text=👤';
+    profileImg.onerror = function() { this.src = 'https://via.placeholder.com/160x160?text=👤'; };
+  }
+
   const coverPhoto = document.getElementById('coverPhoto');
   if (coverPhoto) coverPhoto.style.backgroundImage = `url('${profileData.coverImg}')`;
 }
@@ -264,13 +330,15 @@ function renderPosts() {
   const container = document.getElementById('postsContainer');
   if (!container) return;
   if (posts.length === 0) {
-    container.innerHTML = '<div class="empty-state" style="padding: 60px; text-align: center;">No posts yet. Share your first update! 🐾</div>';
+    container.innerHTML = '<div class="empty-state" style="padding: 60px; text-align: center; color: var(--text-muted);">No posts yet. Share your first update! 🐾</div>';
     return;
   }
   container.innerHTML = posts.map(post => `
     <div class="post-card reveal" data-post-id="${post.id}">
       <div class="post-header">
-        <img src="${post.authorImg || (post.author?.profilePicture) || '../html/assets/animals/doge.png'}" alt="${post.author?.name || 'User'}">
+        <img src="${post.authorImg || post.author?.profilePicture || post.author?.avatar || 'https://via.placeholder.com/50x50?text=👤'}"
+             alt="${escapeHtml(post.author?.name || 'User')}"
+             onerror="this.src='https://via.placeholder.com/50x50?text=👤'">
         <div class="post-header-info">
           <div class="post-author">${escapeHtml(post.author?.name || 'Unknown')}</div>
           <div class="post-time">${formatDate(post.createdAt) || 'Just now'}</div>
@@ -299,7 +367,8 @@ function renderPosts() {
       <div class="comments-section">
         ${(post.comments || []).map(comment => `
           <div class="comment" data-comment-id="${comment.id}">
-            <img src="${comment.authorImg || comment.author?.profilePicture || '../html/assets/animals/doge.png'}">
+            <img src="${comment.authorImg || comment.author?.profilePicture || comment.author?.avatar || 'https://via.placeholder.com/36x36?text=👤'}"
+                 onerror="this.src='https://via.placeholder.com/36x36?text=👤'">
             <div class="comment-content">
               <span class="comment-author">${escapeHtml(comment.author?.name || 'User')}</span>
               <span class="comment-text">${escapeHtml(comment.text)}</span>
@@ -325,13 +394,13 @@ function renderAnimals() {
   const grid = document.getElementById('animalsGrid');
   if (!grid) return;
   if (animals.length === 0) {
-    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">No animals added yet. Click "Add Animal" to get started! 🐾</div>';
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">No animals added yet. Click "Add Animal" to get started! 🐾</div>';
     return;
   }
   grid.innerHTML = animals.map(animal => `
     <div class="animal-card">
       <div class="animal-image-container" onclick="viewAnimal(${animal.id})">
-        <img src="${animal.image}" alt="${animal.name}">
+        <img src="${animal.image}" alt="${escapeHtml(animal.name)}" onerror="this.src='https://via.placeholder.com/200x160?text=🐾'">
         <div class="view-overlay"><span class="view-text">👁️ View Profile</span></div>
       </div>
       ${isEditMode ? `
@@ -362,13 +431,15 @@ function openProfileModal() {
   if (!isEditMode) { showToast('Please click Customize Profile first to edit', 'error'); return; }
   openModal('profileModal');
 }
+
+// ✅ FIXED: reads from profileData instead of DOM
 function editName() {
   if (!isEditMode) { showToast('Please click Customize Profile first to edit', 'error'); return; }
   const nameInput = document.getElementById('nameInput');
-  const profileName = document.getElementById('profileName');
-  if (nameInput && profileName) nameInput.value = profileName.textContent;
+  if (nameInput) nameInput.value = profileData.name;
   openModal('nameModal');
 }
+
 function editBio() {
   if (!isEditMode) { showToast('Please click Customize Profile first to edit', 'error'); return; }
   const bioContent = document.getElementById('bioContent');
@@ -384,6 +455,7 @@ function openAddAnimalModal() {
   if (!isEditMode) { showToast('Please click Customize Profile first to edit', 'error'); return; }
   openModal('animalModal');
 }
+
 async function saveCover() {
   const coverInput = document.getElementById('coverInput');
   if (coverInput && coverInput.files && coverInput.files[0]) {
@@ -400,6 +472,7 @@ async function saveCover() {
     reader.readAsDataURL(coverInput.files[0]);
   } else { showToast('Please select an image first', 'error'); }
 }
+
 async function saveProfile() {
   const profileInput = document.getElementById('profileInput');
   if (profileInput && profileInput.files && profileInput.files[0]) {
@@ -408,7 +481,11 @@ async function saveProfile() {
       try {
         await API.put('/user', { profilePicture: e.target.result });
         profileData.profileImg = e.target.result;
-        if (User.current) User.current.avatar = e.target.result;
+        if (User.current) {
+          User.current.avatar = e.target.result;
+          User.current.profilePicture = e.target.result;
+          localStorage.setItem('breedlink_user', JSON.stringify(User.current));
+        }
         const profileBtn = document.getElementById('profileBtn');
         if (profileBtn) profileBtn.innerHTML = `<img src="${e.target.result}" alt="Profile">`;
         updateAllPostsAuthorImg();
@@ -420,18 +497,24 @@ async function saveProfile() {
     reader.readAsDataURL(profileInput.files[0]);
   } else { showToast('Please select an image first', 'error'); }
 }
+
 async function saveName() {
   const input = document.getElementById('nameInput');
   if (input && input.value.trim()) {
     try {
       await API.put('/user', { name: input.value.trim() });
       profileData.name = input.value.trim();
+      if (User.current) {
+        User.current.name = profileData.name;
+        localStorage.setItem('breedlink_user', JSON.stringify(User.current));
+      }
       updateProfileUI();
       showToast('Name updated! ✏️');
       closeModal('nameModal');
     } catch (err) { showToast('Failed to update name', 'error'); }
   }
 }
+
 async function saveBio() {
   const input = document.getElementById('bioInput');
   if (input && input.value.trim()) {
@@ -444,6 +527,7 @@ async function saveBio() {
     } catch (err) { showToast('Failed to update bio', 'error'); }
   }
 }
+
 async function saveTag() {
   const input = document.getElementById('tagInput');
   if (input && input.value.trim()) {
@@ -458,6 +542,7 @@ async function saveTag() {
     } catch (err) { showToast('Failed to add tag', 'error'); }
   }
 }
+
 async function removeTag(element) {
   if (element && element.parentElement) {
     const tagText = element.parentElement.textContent.replace('×', '').trim();
@@ -470,22 +555,18 @@ async function removeTag(element) {
     } catch (err) { showToast('Failed to remove tag', 'error'); }
   }
 }
+
 function openContactModal() {
   if (!isEditMode) { showToast('Please click Customize Profile first to edit', 'error'); return; }
-  const emailSpan = document.querySelector('#contactEmail span:last-child');
-  const phoneSpan = document.querySelector('#contactPhone span:last-child');
-  const locationSpan = document.querySelector('#contactLocation span:last-child');
-  const email = emailSpan ? emailSpan.textContent : profileData.contact.email;
-  const phone = phoneSpan ? phoneSpan.textContent : profileData.contact.phone;
-  const location = locationSpan ? locationSpan.textContent : profileData.contact.location;
   const emailInput = document.getElementById('contactEmailInput');
   const phoneInput = document.getElementById('contactPhoneInput');
   const locationInput = document.getElementById('contactLocationInput');
-  if (emailInput) emailInput.value = email;
-  if (phoneInput) phoneInput.value = phone;
-  if (locationInput) locationInput.value = location;
+  if (emailInput) emailInput.value = profileData.contact.email || '';
+  if (phoneInput) phoneInput.value = profileData.contact.phone || '';
+  if (locationInput) locationInput.value = profileData.contact.location || '';
   openModal('contactModal');
 }
+
 async function saveContact() {
   const email = document.getElementById('contactEmailInput')?.value.trim();
   const phone = document.getElementById('contactPhoneInput')?.value.trim();
@@ -494,17 +575,14 @@ async function saveContact() {
   try {
     await API.put('/user', { contact: { email, phone, location } });
     profileData.contact = { email, phone, location };
-    const emailSpan = document.querySelector('#contactEmail span:last-child');
-    const phoneSpan = document.querySelector('#contactPhone span:last-child');
-    const locationSpan = document.querySelector('#contactLocation span:last-child');
-    if (emailSpan) emailSpan.textContent = email;
-    if (phoneSpan) phoneSpan.textContent = phone;
-    if (locationSpan) locationSpan.textContent = location;
+    updateContactDOM();
     showToast('Contact info updated! ✉️');
     closeModal('contactModal');
   } catch (err) { showToast('Failed to update contact', 'error'); }
 }
+
 function showConnections() { showToast(`You have ${profileData.stats.connections} connections! 🤝`); }
+
 function showBioModal() {
   const bioContent = document.getElementById('bioContent');
   if (bioContent) {
@@ -525,17 +603,18 @@ function showBioModal() {
     document.body.style.overflow = 'hidden';
   }
 }
-function showLitters() { showToast(`Total litters: ${animals.length} 🐾`); }
+
+function showLitters() { showToast(`Total animals: ${animals.length} 🐾`); }
 function showReviews() { showToast(`Rating: ${profileData.stats.rating} ⭐ from verified breeders`); }
 
-// ------------------------- Post Actions (API) -------------------------
+// ------------------------- Post Actions -------------------------
 async function addPost() {
   const statusInput = document.getElementById('statusInput');
   if (!statusInput) return;
   const text = statusInput.value.trim();
   if (text || pendingPostImage) {
     try {
-      const newPost = await API.post('/posts', { text: text || "", image: pendingPostImage });
+      const newPost = await API.post('/posts', { text: text || '', image: pendingPostImage });
       posts.unshift(newPost);
       renderPosts();
       statusInput.value = '';
@@ -548,11 +627,14 @@ async function addPost() {
     } catch (err) { showToast('Failed to create post', 'error'); }
   } else { showToast('Please write something or attach an image', 'error'); }
 }
+
 function handlePostImageSelect(e) {
   const file = e.target.files[0];
   if (file) previewPostImage(e.target, 'postImagePreview');
 }
+
 function openPostMenu(postId) { currentPostId = postId; openModal('postMenuModal'); }
+
 function editCurrentPost() {
   const post = posts.find(p => p.id === currentPostId);
   if (post) {
@@ -562,11 +644,12 @@ function editCurrentPost() {
     openModal('editPostModal');
   }
 }
+
 async function savePostEdit() {
   const newText = document.getElementById('editPostText');
   if (currentPostId && newText) {
     try {
-      const updated = await API.put(`/posts/${currentPostId}`, { text: newText.value.trim() || "" });
+      const updated = await API.put(`/posts/${currentPostId}`, { text: newText.value.trim() || '' });
       const index = posts.findIndex(p => p.id === currentPostId);
       if (index !== -1) posts[index] = updated;
       renderPosts();
@@ -575,6 +658,7 @@ async function savePostEdit() {
     } catch (err) { showToast('Failed to update post', 'error'); }
   }
 }
+
 async function deleteCurrentPost() {
   if (confirm('Are you sure you want to delete this post?')) {
     try {
@@ -586,6 +670,7 @@ async function deleteCurrentPost() {
     } catch (err) { showToast('Failed to delete post', 'error'); }
   }
 }
+
 function removePostImage() {
   pendingPostImage = null;
   const preview = document.getElementById('editPostPreview');
@@ -594,6 +679,7 @@ function removePostImage() {
   if (imageInput) imageInput.value = '';
   showToast('Image removed');
 }
+
 async function toggleLike(postId) {
   try {
     const result = await API.post(`/posts/${postId}/like`, {});
@@ -605,6 +691,7 @@ async function toggleLike(postId) {
     }
   } catch (err) { showToast('Failed to like', 'error'); }
 }
+
 async function toggleSave(postId) {
   const post = posts.find(p => p.id === postId);
   if (post) {
@@ -616,6 +703,7 @@ async function toggleSave(postId) {
     } catch (err) { showToast('Failed to save post', 'error'); }
   }
 }
+
 async function addComment(postId) {
   const input = document.getElementById(`comment-input-${postId}`);
   if (!input) return;
@@ -633,14 +721,24 @@ async function addComment(postId) {
     } catch (err) { showToast('Failed to add comment', 'error'); }
   }
 }
-function focusComment(postId) { const input = document.getElementById(`comment-input-${postId}`); if (input) input.focus(); }
-function sharePost(postId) { copyToClipboard(`https://breedlink.com/post/${postId}`); showToast('Link copied to clipboard! 🔗'); }
+
+function focusComment(postId) {
+  const input = document.getElementById(`comment-input-${postId}`);
+  if (input) input.focus();
+}
+
+function sharePost(postId) {
+  copyToClipboard(`https://breedlink.com/post/${postId}`);
+  showToast('Link copied to clipboard! 🔗');
+}
+
 function editComment(postId, commentId, currentText) {
   currentComment = { postId, commentId };
   const editText = document.getElementById('editCommentText');
   if (editText) editText.value = currentText;
   openModal('commentEditModal');
 }
+
 async function saveCommentEdit() {
   if (!currentComment) return;
   const newText = document.getElementById('editCommentText');
@@ -658,6 +756,7 @@ async function saveCommentEdit() {
   closeModal('commentEditModal');
   currentComment = null;
 }
+
 async function deleteComment(postId, commentId) {
   if (confirm('Delete this comment?')) {
     try {
@@ -672,7 +771,7 @@ async function deleteComment(postId, commentId) {
   }
 }
 
-// ------------------------- Animal Actions (API) -------------------------
+// ------------------------- Animal Actions -------------------------
 function viewAnimal(animalId) {
   const animal = animals.find(a => a.id === animalId);
   if (!animal) return;
@@ -680,20 +779,20 @@ function viewAnimal(animalId) {
   const hasDocs = (animal.healthDocuments && animal.healthDocuments.length > 0) || (animal.healthCertificates && animal.healthCertificates.length > 0);
   content.innerHTML = `
     <div class="view-animal-content">
-      <img src="${animal.image}" alt="${animal.name}" class="view-animal-image">
+      <img src="${animal.image}" alt="${escapeHtml(animal.name)}" class="view-animal-image" onerror="this.src='https://via.placeholder.com/400x250?text=🐾'">
       <div class="view-animal-name">${escapeHtml(animal.name)} ${animal.gender === 'Male' ? '♂️' : '♀️'}</div>
       <div class="view-animal-breed">${escapeHtml(animal.breed)}</div>
       <div class="view-animal-details">
         <div class="view-detail-item"><div class="view-detail-label">Age</div><div class="view-detail-value">${escapeHtml(animal.age)}</div></div>
         <div class="view-detail-item"><div class="view-detail-label">Status</div><div class="view-detail-value">${escapeHtml(animal.status)}</div></div>
         <div class="view-detail-item"><div class="view-detail-label">Litters</div><div class="view-detail-value">${animal.litterCount || 0}</div></div>
-        <div class="view-detail-item"><div class="view-detail-label">Partner</div><div class="view-detail-value">${animal.partner || 'None'}</div></div>
+        <div class="view-detail-item"><div class="view-detail-label">Partner</div><div class="view-detail-value">${escapeHtml(animal.partner || 'None')}</div></div>
         ${animal.description ? `<div class="view-detail-item full-width"><div class="view-detail-label">About</div><div class="view-detail-value">${escapeHtml(animal.description)}</div></div>` : ''}
       </div>
       <div class="view-certificates">
         <h4>📋 Health Documents & Certificates</h4>
         <div class="cert-list" id="animalDocsList">
-          ${hasDocs ? 
+          ${hasDocs ?
             (animal.healthCertificates || []).map(cert => `<span class="cert-badge" onclick="openDocument('${cert}')">📄 ${escapeHtml(cert)}</span>`).join('') +
             (animal.healthDocuments || []).map(doc => `<span class="cert-badge" onclick="openDocument('${doc.url || doc}')">📎 ${escapeHtml(doc.name || doc)}</span>`).join('')
             : '<span class="cert-badge none">No documents added yet</span>'}
@@ -707,10 +806,12 @@ function viewAnimal(animalId) {
   `;
   openModal('viewAnimalModal');
 }
+
 function openDocument(docUrl) {
-  if (docUrl.startsWith('data:') || docUrl.startsWith('blob:')) window.open(docUrl, '_blank');
-  else showToast(`Opening document: ${docUrl}`, 'success');
+  if (docUrl.startsWith('data:') || docUrl.startsWith('blob:') || docUrl.startsWith('http')) window.open(docUrl, '_blank');
+  else showToast(`Opening document: ${docUrl}`);
 }
+
 function editAnimal(animalId) {
   if (!isEditMode) { showToast('Please click Customize Profile first to edit', 'error'); return; }
   currentAnimalId = animalId;
@@ -723,7 +824,12 @@ function editAnimal(animalId) {
     <div class="animal-detail-grid">
       <div class="animal-detail-item"><label>Name *</label><input type="text" id="edit_name" value="${escapeHtml(animal.name)}"></div>
       <div class="animal-detail-item"><label>Breed *</label><input type="text" id="edit_breed" value="${escapeHtml(animal.breed)}"></div>
-      <div class="animal-detail-item"><label>Gender</label><select id="edit_gender"><option value="Male" ${animal.gender === 'Male' ? 'selected' : ''}>♂️ Male</option><option value="Female" ${animal.gender === 'Female' ? 'selected' : ''}>♀️ Female</option></select></div>
+      <div class="animal-detail-item"><label>Gender</label>
+        <select id="edit_gender">
+          <option value="Male" ${animal.gender === 'Male' ? 'selected' : ''}>♂️ Male</option>
+          <option value="Female" ${animal.gender === 'Female' ? 'selected' : ''}>♀️ Female</option>
+        </select>
+      </div>
       <div class="animal-detail-item"><label>Age</label><input type="text" id="edit_age" value="${escapeHtml(animal.age)}"></div>
       <div class="animal-detail-item"><label>Status</label><input type="text" id="edit_status" value="${escapeHtml(animal.status)}"></div>
       <div class="animal-detail-item"><label>Litter Count</label><input type="number" id="edit_litterCount" value="${animal.litterCount || 0}" min="0"></div>
@@ -734,12 +840,19 @@ function editAnimal(animalId) {
         <div id="edit_documentsPreview" class="documents-preview"></div>
       </div>
     </div>
-    <div class="image-upload-group"><label>Animal Photo</label><div class="image-preview-small" id="edit_imagePreview" style="background-image: url('${animal.image}');" onclick="document.getElementById('edit_imageInput').click()"><span>📷 Change</span></div><input type="file" id="edit_imageInput" accept="image/*" style="display: none;"></div>
+    <div class="image-upload-group">
+      <label>Animal Photo</label>
+      <div class="image-preview-small" id="edit_imagePreview" style="background-image: url('${animal.image}');" onclick="document.getElementById('edit_imageInput').click()">
+        <span>📷 Change</span>
+      </div>
+      <input type="file" id="edit_imageInput" accept="image/*" style="display: none;">
+    </div>
   `;
   const docInput = document.getElementById('edit_documents');
   if (docInput) docInput.onchange = function(e) { previewMultipleFiles(e.target, 'edit_documentsPreview', 'document'); };
   openModal('animalDetailModal');
 }
+
 async function saveAnimalDetails() {
   const animal = animals.find(a => a.id === currentAnimalId);
   if (!animal) return;
@@ -773,6 +886,7 @@ async function saveAnimalDetails() {
     } catch (err) { showToast('Failed to update animal', 'error'); }
   }
 }
+
 async function saveAnimal() {
   const name = document.getElementById('animalName')?.value.trim();
   const breed = document.getElementById('animalBreed')?.value.trim();
@@ -782,7 +896,9 @@ async function saveAnimal() {
   const preview = document.getElementById('animalPreview');
   if (!name || !breed) { showToast('Please fill in Name and Breed!', 'error'); return; }
   let imageUrl = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400';
-  if (preview && preview.style.backgroundImage && preview.style.backgroundImage !== 'none') imageUrl = preview.style.backgroundImage.slice(4, -1).replace(/"/g, "");
+  if (preview && preview.style.backgroundImage && preview.style.backgroundImage !== 'none') {
+    imageUrl = preview.style.backgroundImage.slice(4, -1).replace(/"/g, '');
+  }
   try {
     const newAnimal = await API.post('/pets', { name, breed, gender, age, status, image: imageUrl, litterCount: 0, partner: '', healthCertificates: [], healthDocuments: [], description: '' });
     animals.push(newAnimal);
@@ -797,6 +913,7 @@ async function saveAnimal() {
     closeModal('animalModal');
   } catch (err) { showToast('Failed to add animal', 'error'); }
 }
+
 async function deleteAnimal(id) {
   if (confirm('Are you sure you want to remove this animal?')) {
     try {
@@ -808,7 +925,7 @@ async function deleteAnimal(id) {
   }
 }
 
-// ------------------------- Messenger (Real API) -------------------------
+// ------------------------- Messenger -------------------------
 async function loadConversations() {
   try {
     const convs = await API.get('/conversations');
@@ -823,12 +940,13 @@ async function loadConversations() {
     renderContacts();
   } catch (err) { console.error('Failed to load conversations', err); }
 }
+
 async function loadMessages(contactId) {
   try {
     const msgs = await API.get(`/messages/${contactId}`);
     mockMessages[contactId] = msgs.map(m => ({
       id: m.id,
-      sender: m.senderId === User.getUser().id ? 'me' : 'them',
+      sender: m.senderId === User.getUser()?.id ? 'me' : 'them',
       text: m.text,
       image: m.image,
       time: formatDate(m.createdAt, true)
@@ -837,6 +955,7 @@ async function loadMessages(contactId) {
     await API.post(`/messages/${contactId}/read`);
   } catch (err) { console.error('Failed to load messages', err); }
 }
+
 async function sendMessageToApi(contactId, text, imageData) {
   let imageUrl = null;
   if (imageData) {
@@ -852,8 +971,7 @@ async function sendMessageToApi(contactId, text, imageData) {
       imageUrl = uploadJson.url;
     }
   }
-  const payload = { to: contactId, text: text || '', image: imageUrl };
-  const newMsg = await API.post('/messages', payload);
+  const newMsg = await API.post('/messages', { to: contactId, text: text || '', image: imageUrl });
   if (!mockMessages[contactId]) mockMessages[contactId] = [];
   mockMessages[contactId].push({
     id: newMsg.id,
@@ -865,6 +983,7 @@ async function sendMessageToApi(contactId, text, imageData) {
   renderMessages(contactId);
   await loadConversations();
 }
+
 function openMessenger() {
   const overlay = document.getElementById('messengerOverlay');
   if (overlay) {
@@ -873,6 +992,7 @@ function openMessenger() {
     loadConversations();
   }
 }
+
 function closeMessenger() {
   const overlay = document.getElementById('messengerOverlay');
   if (overlay) {
@@ -881,16 +1001,17 @@ function closeMessenger() {
   }
   currentChatId = null;
 }
+
 function renderContacts() {
   const container = document.getElementById('contactsListContainer');
   if (!container) return;
   if (!mockContacts.length) {
-    container.innerHTML = '<div style="text-align: center; padding: 40px;">No conversations yet</div>';
+    container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No conversations yet</div>';
     return;
   }
   container.innerHTML = mockContacts.map(contact => `
     <div class="contact-item ${contact.unread > 0 ? 'unread' : ''}" onclick="openChat(${contact.id})">
-      <img src="${contact.avatar}" alt="${contact.name}" class="contact-avatar">
+      <img src="${contact.avatar}" alt="${escapeHtml(contact.name)}" class="contact-avatar" onerror="this.src='https://via.placeholder.com/40x40?text=👤'">
       <div class="contact-info">
         <div class="contact-name">${escapeHtml(contact.name)}</div>
         <div class="contact-preview">${escapeHtml(contact.lastMessage)}</div>
@@ -902,6 +1023,7 @@ function renderContacts() {
     </div>
   `).join('');
 }
+
 async function openChat(contactId) {
   currentChatId = contactId;
   const contact = mockContacts.find(c => c.id === contactId);
@@ -920,12 +1042,13 @@ async function openChat(contactId) {
   contact.unread = 0;
   renderContacts();
 }
+
 function renderMessages(contactId) {
   const container = document.getElementById('messagesContainer');
   if (!container) return;
   const messages = mockMessages[contactId] || [];
   if (!messages.length) {
-    container.innerHTML = '<div style="text-align: center; padding: 40px;">Start a conversation!</div>';
+    container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Start a conversation!</div>';
   } else {
     container.innerHTML = messages.map(msg => `
       <div class="message ${msg.sender === 'me' ? 'sent' : 'received'}">
@@ -939,6 +1062,7 @@ function renderMessages(contactId) {
   }
   container.scrollTop = container.scrollHeight;
 }
+
 async function sendMessage() {
   const input = document.getElementById('messageInput');
   if (!input || !currentChatId) return;
@@ -947,30 +1071,30 @@ async function sendMessage() {
   input.value = '';
   await sendMessageToApi(currentChatId, text, null);
 }
+
 function handleMessageInput(event) {
   if (event.key === 'Enter') sendMessage();
 }
+
 async function sendImage(fileInput) {
   const file = fileInput.files[0];
   if (!file || !currentChatId) return;
   await sendMessageToApi(currentChatId, null, file);
   fileInput.value = '';
 }
+
 function searchContacts(query) {
-  if (!query.trim()) {
-    renderContacts();
-    return;
-  }
+  if (!query.trim()) { renderContacts(); return; }
   const filtered = mockContacts.filter(c => c.name.toLowerCase().includes(query.toLowerCase()));
   const container = document.getElementById('contactsListContainer');
   if (!container) return;
   if (!filtered.length) {
-    container.innerHTML = '<div style="text-align: center; padding: 40px;">No contacts found</div>';
+    container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No contacts found</div>';
     return;
   }
   container.innerHTML = filtered.map(contact => `
     <div class="contact-item" onclick="openChat(${contact.id})">
-      <img src="${contact.avatar}" alt="${contact.name}" class="contact-avatar">
+      <img src="${contact.avatar}" alt="${escapeHtml(contact.name)}" class="contact-avatar" onerror="this.src='https://via.placeholder.com/40x40?text=👤'">
       <div class="contact-info">
         <div class="contact-name">${escapeHtml(contact.name)}</div>
         <div class="contact-preview">${escapeHtml(contact.lastMessage)}</div>
@@ -982,15 +1106,7 @@ function searchContacts(query) {
     </div>
   `).join('');
 }
-function handleIncomingChatRequest() {
-  const chatWith = sessionStorage.getItem('chatWith');
-  if (chatWith) {
-    const breeder = JSON.parse(chatWith);
-    sessionStorage.removeItem('chatWith');
-    // No need to add contact manually – it will be loaded from conversations
-    setTimeout(() => { openMessenger(); }, 500);
-  }
-}
+
 function closeChat() {
   const messengerContacts = document.getElementById('messengerContacts');
   const messengerChat = document.getElementById('messengerChat');
@@ -1001,6 +1117,14 @@ function closeChat() {
   currentChatId = null;
 }
 
+function handleIncomingChatRequest() {
+  const chatWith = sessionStorage.getItem('chatWith');
+  if (chatWith) {
+    sessionStorage.removeItem('chatWith');
+    setTimeout(() => { openMessenger(); }, 500);
+  }
+}
+
 // ------------------------- Event Listeners & Init -------------------------
 function setupEventListeners() {
   const postImageInput = document.getElementById('postImageInput');
@@ -1009,26 +1133,46 @@ function setupEventListeners() {
     modal.addEventListener('click', function(e) { if (e.target === this) closeModal(this.id); });
   });
   const lightboxModal = document.getElementById('lightboxModal');
-  if (lightboxModal) lightboxModal.addEventListener('click', function(e) { if (e.target === this) { closeModal('lightboxModal'); document.body.style.overflow = ''; } });
+  if (lightboxModal) lightboxModal.addEventListener('click', function(e) {
+    if (e.target === this) { closeModal('lightboxModal'); document.body.style.overflow = ''; }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-  if (!User.isAuthenticated()) { window.location.href = '../html/login.html'; return; }
+  if (!User.isAuthenticated()) {
+    window.location.href = '../html/login.html';
+    return;
+  }
+
+  const cachedUser = User.getUser();
+  if (cachedUser) {
+    profileData.name       = cachedUser.name || '';
+    profileData.bio        = cachedUser.bio || '';
+    profileData.tags       = cachedUser.tags || [];
+    profileData.profileImg = cachedUser.profilePicture || cachedUser.avatar || '';
+    profileData.coverImg   = cachedUser.coverPhoto || 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=1200';
+    profileData.contact    = cachedUser.contact || { email: cachedUser.email || '', phone: '', location: '' };
+    profileData.stats      = cachedUser.stats || { connections: 0, litters: 0, rating: 0 };
+    updateProfileUI();
+    updateContactDOM();
+  }
+
   await loadProfile();
   await loadPosts();
   await loadAnimals();
+
   const urlParams = new URLSearchParams(window.location.search);
   const enableEdit = urlParams.get('edit') === 'true' || sessionStorage.getItem('enableEdit') === 'true';
-  if (enableEdit) { enableEditMode(); sessionStorage.removeItem('enableEdit'); }
-  updateProfileUI();
-  renderPosts();
-  renderAnimals();
-  renderContacts();
+  if (enableEdit) {
+    enableEditMode();
+    sessionStorage.removeItem('enableEdit');
+  }
+
   setupEventListeners();
   handleIncomingChatRequest();
 });
 
-// Expose functions to window for inline onclick handlers
+// ------------------------- Expose to window -------------------------
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.previewImage = previewImage;
@@ -1058,6 +1202,7 @@ window.openPostMenu = openPostMenu;
 window.editCurrentPost = editCurrentPost;
 window.savePostEdit = savePostEdit;
 window.deleteCurrentPost = deleteCurrentPost;
+window.removePostImage = removePostImage;
 window.toggleLike = toggleLike;
 window.toggleSave = toggleSave;
 window.addComment = addComment;

@@ -208,7 +208,7 @@ function autoFillRememberedEmail() {
 
 function initNavigation() {
   updateNavForAuthStatus();
-  if (typeof initCollapsibleSearch === 'function') initCollapsibleSearch();
+  highlightActiveNavLink();
 }
 
 function updateNavForAuthStatus() {
@@ -219,6 +219,7 @@ function updateNavForAuthStatus() {
   const guestOptions = document.getElementById('guestOptions');
   const searchToggle = document.getElementById('searchToggle');
   const searchBoxContent = document.getElementById('searchBoxContent');
+
   if (isLoggedIn && user) {
     if (messageBtn) messageBtn.style.display = 'flex';
     if (profileMenu) {
@@ -249,10 +250,39 @@ function updateNavForAuthStatus() {
       `;
     }
   }
-  const currentPage = window.location.pathname.split('/').pop() || 'home.html';
-  const pageMap = { 'home.html': 'nav-home', 'about.html': 'nav-about', 'swipe.html': 'nav-breeders' };
+}
+
+function highlightActiveNavLink() {
+  const currentPath = window.location.pathname;
+  const currentFile = currentPath.split('/').pop() || 'index.html';
+  
+  const navLinks = {
+    'index.html': 'nav-home',
+    'home.html': 'nav-home',
+    'about.html': 'nav-about',
+    'swipe.html': 'nav-breeders'
+  };
+  
+  let activeId = null;
+  for (const [file, id] of Object.entries(navLinks)) {
+    if (currentFile === file) {
+      activeId = id;
+      break;
+    }
+  }
+  
+  if (!activeId && currentFile === 'profile.html') {
+    const homeLink = document.getElementById('nav-home');
+    const aboutLink = document.getElementById('nav-about');
+    const breedersLink = document.getElementById('nav-breeders');
+    if (homeLink) homeLink.classList.remove('active');
+    if (aboutLink) aboutLink.classList.remove('active');
+    if (breedersLink) breedersLink.classList.remove('active');
+    return;
+  }
+  
   document.querySelectorAll('.menu a').forEach(link => link.classList.remove('active'));
-  const activeId = pageMap[currentPage];
+  
   if (activeId) {
     const activeLink = document.getElementById(activeId);
     if (activeLink) activeLink.classList.add('active');

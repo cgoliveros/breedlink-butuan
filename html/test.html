@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+</head>
+<body>
+    <h1>Testing Supabase Connection</h1>
+    <div id="result">Loading...</div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Your Supabase credentials
+        const SUPABASE_URL = 'https://fhlpalxmrppxgprippmj.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_jaYuGH-G93af-qBpB8yjRA_ZrnfGVPB';
+        
+        // Create client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Test signup
+        async function testSignup() {
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: 'test123@example.com',
+                    password: '12345678',
+                    options: {
+                        data: { name: 'Test User', account_type: 'breeder' }
+                    }
+                });
+                
+                if (error) throw error;
+                document.getElementById('result').innerHTML = `
+                    ✅ SUCCESS!<br>
+                    User created: ${data.user?.email}<br>
+                    User ID: ${data.user?.id}<br>
+                    <br>
+                    <strong>Supabase is working correctly!</strong>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    ❌ ERROR: ${error.message}<br>
+                    <br>
+                    Check your Supabase project settings.
+                `;
+            }
+        }
+        
+        testSignup();
+    </script>
+</body>
+</html>

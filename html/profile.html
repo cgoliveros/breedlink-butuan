@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Profile | BreedLink</title>
+  <title>My Profile | BreedLink</title>
+  
   <link rel="stylesheet" href="../css/general/main.css">
   <link rel="stylesheet" href="../css/general/components.css">
   <link rel="stylesheet" href="../css/general/responsive.css">
   <link rel="stylesheet" href="../css/profile.css">
 </head>
 <body>
+  <!-- Navigation -->
   <header class="navigation" id="navbar">
     <div class="nav-container">
       <div class="nav-left">
@@ -34,10 +36,10 @@
             <span class="default-avatar">👤</span>
           </button>
           <div class="profile-dropdown" id="profileDropdown">
-            <a href="profile.html" class="profile-dropdown-item"><span>👁️</span> View Profile</a>
-            <a href="profile.html?edit=true" class="profile-dropdown-item" onclick="sessionStorage.setItem('enableEdit', 'true');"><span>✏️</span> Customize Profile</a>
-            <div class="profile-dropdown-divider"></div>
-            <button class="profile-dropdown-item logout" onclick="handleLogout()"><span>🚪</span> Logout</button>
+              <a href="profile.html" class="profile-dropdown-item"><span>👁️</span> View Profile</a>
+              <a href="#" class="profile-dropdown-item" onclick="event.preventDefault(); event.stopPropagation(); const dd=document.getElementById('profileDropdown'); if(dd) dd.classList.remove('active'); if(typeof enableEditMode==='function') enableEditMode();"><span>✏️</span> Customize Profile</a>
+              <div class="profile-dropdown-divider"></div>
+              <button class="profile-dropdown-item logout" onclick="handleLogout()"><span>🚪</span> Logout</button>
           </div>
         </div>
         <div class="guest-options" id="guestOptions">
@@ -47,6 +49,8 @@
       </div>
     </div>
   </header>
+
+  <!-- Messenger Modal -->
   <div class="messenger-overlay" id="messengerOverlay">
     <div class="messenger-modal">
       <div class="messenger-header">
@@ -62,8 +66,8 @@
       <div class="messenger-chat" id="messengerChat">
         <div class="messenger-chat-header">
           <button class="messenger-back" onclick="closeChat()">←</button>
-          <img src="" alt="" id="chatHeaderAvatar">
-          <span id="chatHeaderName"></span>
+          <img src="" alt="" id="chatHeaderAvatar" style="width: 40px; height: 40px; border-radius: 50%;">
+          <span id="chatHeaderName" style="font-weight: 600;"></span>
         </div>
         <div class="messenger-messages" id="messagesContainer"></div>
         <div class="messenger-input-area">
@@ -79,26 +83,36 @@
       </div>
     </div>
   </div>
+
+  <!-- Main Container -->
   <div class="container">
-    <div class="cover" id="coverPhoto" onclick="openCoverModal()" style="background-image: url('https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=1200'); background-size: cover; background-position: center;">
+    <!-- Cover Photo -->
+    <div class="cover" id="coverPhoto" onclick="openCoverModal()">
       <div class="cover-overlay">
         <button class="cover-edit" type="button" onclick="openCoverModal(event)">
           <span>📷</span> Change Cover
         </button>
       </div>
     </div>
+
+    <!-- Profile Section -->
     <div class="profile-section">
       <div class="profile-img-container">
-        <img class="profile-img" id="profileImg" src="../html/assets/animals/doge.png" alt="Profile">
+        <img class="profile-img" id="profileImg" src="https://raw.githubusercontent.com/himeh-pers/Breed-Link/refs/heads/main/doge.png" alt="Profile" onerror="this.src='https://raw.githubusercontent.com/himeh-pers/Breed-Link/refs/heads/main/doge.png'">
         <div class="profile-img-overlay" onclick="openProfileModal()">
           <span class="edit-profile-img">📷</span>
         </div>
       </div>
+      
       <div class="profile-name" id="profileNameDisplay">
-        <span id="profileName"></span>
+        <span id="profileName">Breeder User</span>
         <button class="edit-name-btn" onclick="editName()">✏️</button>
       </div>
+
+      <!-- Tags -->
       <div class="tags" id="tagsContainer"></div>
+
+      <!-- Bio Section -->
       <div class="bio-section" id="bioSection">
         <div class="bio-header">
           <h3><span>📝</span> About Me</h3>
@@ -106,12 +120,16 @@
         </div>
         <div class="bio-content" id="bioContent"></div>
       </div>
+
+      <!-- Contact Info -->
       <div class="contact-info" id="contactInfo">
-        <div class="contact-item" id="contactEmail"><span>📧</span> <span></span></div>
-        <div class="contact-item" id="contactPhone"><span>📱</span> <span></span></div>
-        <div class="contact-item" id="contactLocation"><span>📍</span> <span></span></div>
+        <div class="contact-item" id="contactEmail"><span>📧</span> <span>breeder@example.com</span></div>
+        <div class="contact-item" id="contactPhone"><span>📱</span> <span>+63 912 345 6789</span></div>
+        <div class="contact-item" id="contactLocation"><span>📍</span> <span>Butuan City, Philippines</span></div>
         <button class="edit-contact-btn" onclick="openContactModal()" title="Edit contact info">✏️</button>
       </div>
+
+      <!-- Stats -->
       <div class="stats">
         <div class="stat-box" onclick="showConnections()">
           <span class="stat-number" id="connectionsCount">0</span>
@@ -130,8 +148,11 @@
           <span class="stat-label">Reviews</span>
         </div>
       </div>
+
       <div class="divider"></div>
     </div>
+
+    <!-- Status/Post Input -->
     <div class="status-box">
       <input type="text" id="statusInput" placeholder="What's new with your breeding program?">
       <div class="status-actions">
@@ -139,9 +160,13 @@
         <button class="add-btn" onclick="addPost()">➕</button>
       </div>
       <input type="file" id="postImageInput" accept="image/*" style="display: none;">
-      <div id="postImagePreview" style="margin-top: 10px;"></div>
+      <div id="postImagePreview" class="post-image-preview" style="margin-top: 10px;"></div>
     </div>
+
+    <!-- Posts Container -->
     <div id="postsContainer"></div>
+
+    <!-- Animals Section -->
     <div class="animals-section">
       <div class="animals-header">
         <h3><span>🐾</span> My Breeding Animals</h3>
@@ -152,20 +177,28 @@
       <div class="animals-grid" id="animalsGrid"></div>
     </div>
   </div>
-  <div class="modal" id="coverModal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeModal('coverModal')">×</button>
-      <h3>🖼️ Change Cover Photo</h3>
-      <div class="image-preview" id="coverPreview" onclick="document.getElementById('coverInput').click()">
-        <span>📤 Click to upload new cover photo</span>
-      </div>
-      <input type="file" id="coverInput" accept="image/*" style="display: none;" onchange="previewImage(this, 'coverPreview')">
-      <div class="modal-buttons">
-        <button class="save-btn" onclick="saveCover()">💾 Save Cover</button>
-        <button class="cancel-btn" onclick="closeModal('coverModal')">❌ Cancel</button>
-      </div>
-    </div>
+
+  <!-- ============================================ -->
+  <!-- MODALS -->
+  <!-- ============================================ -->
+
+  <!-- Cover Photo Modal -->
+  <div class="modal" id="coverModal"> 
+    <div class="modal-content"> 
+      <button class="modal-close" onclick="closeModal('coverModal')">×</button> 
+      <h3>🖼️ Change Cover Photo</h3> 
+      <div class="image-preview" id="coverPreview" onclick="document.getElementById('coverInput').click()"> 
+        <span>📤 Click to upload new cover photo</span> 
+      </div> 
+      <input type="file" id="coverInput" accept="image/*" style="display: none;" onchange="previewImage(this, 'coverPreview')"> 
+      <div class="modal-buttons"> 
+        <button class="save-btn" onclick="saveCover()">💾 Save Cover</button> 
+        <button class="cancel-btn" onclick="closeModal('coverModal')">❌ Cancel</button> 
+      </div> 
+    </div> 
   </div>
+
+  <!-- Profile Photo Modal -->
   <div class="modal" id="profileModal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('profileModal')">×</button>
@@ -180,6 +213,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Edit Name Modal -->
   <div class="modal" id="nameModal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('nameModal')">×</button>
@@ -191,17 +226,21 @@
       </div>
     </div>
   </div>
+
+  <!-- Edit Bio Modal -->
   <div class="modal" id="bioModal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('bioModal')">×</button>
       <h3>📝 Edit Bio</h3>
-      <textarea id="bioInput" rows="6" placeholder="Tell us about yourself..."></textarea>
+      <textarea id="bioInput" rows="6" placeholder="Tell us about yourself..." style="width:100%; resize: vertical;"></textarea>
       <div class="modal-buttons">
         <button class="save-btn" onclick="saveBio()">💾 Save Bio</button>
         <button class="cancel-btn" onclick="closeModal('bioModal')">❌ Cancel</button>
       </div>
     </div>
   </div>
+
+  <!-- Add Tag Modal -->
   <div class="modal" id="tagModal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('tagModal')">×</button>
@@ -213,29 +252,50 @@
       </div>
     </div>
   </div>
+
+  <!-- Add Animal Modal -->
   <div class="modal" id="animalModal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 550px;">
       <button class="modal-close" onclick="closeModal('animalModal')">×</button>
       <h3>🐾 Add New Animal</h3>
+      
+      <!-- Animal Photo -->
       <div class="image-preview" id="animalPreview" onclick="document.getElementById('animalInput').click()">
         <span>📤 Click to upload animal photo</span>
       </div>
-      <input type="file" id="animalInput" accept="image/*" style="display: none;" onchange="previewImage(this, 'animalPreview')">
-      <input type="text" id="animalName" placeholder="Animal Name">
-      <input type="text" id="animalBreed" placeholder="Breed (e.g., Labrador Retriever)">
+      <input type="file" id="animalInput" accept="image/*" style="display: none;" onchange="previewAnimalImage(this, 'animalPreview')">
+      
+      <!-- Basic Info -->
+      <input type="text" id="animalName" placeholder="Animal Name *">
+      <input type="text" id="animalBreed" placeholder="Breed *">
+      
       <select id="animalGender">
         <option value="">Select Gender</option>
         <option value="Male">♂️ Male</option>
         <option value="Female">♀️ Female</option>
       </select>
+      
       <input type="text" id="animalAge" placeholder="Age (e.g., 2 years)">
       <input type="text" id="animalStatus" placeholder="Status (e.g., Available for Stud)">
+      <textarea id="animalDescription" rows="3" placeholder="Description (optional)" style="width:100%; resize: vertical;"></textarea>
+      
+      <!-- Documents Upload -->
+      <div class="document-upload">
+        <label>📋 Health Documents & Certificates</label>
+        <div class="document-preview" id="animalDocumentsPreview" onclick="document.getElementById('animalDocuments').click()">
+          <span>📄 Click to upload documents (PDF, Images)</span>
+        </div>
+        <input type="file" id="animalDocuments" accept="image/*,application/pdf" multiple style="display: none;" onchange="previewAnimalDocuments(this, 'animalDocumentsPreview')">
+      </div>
+      
       <div class="modal-buttons">
         <button class="save-btn" onclick="saveAnimal()">💾 Save Animal</button>
         <button class="cancel-btn" onclick="closeModal('animalModal')">❌ Cancel</button>
       </div>
     </div>
   </div>
+
+  <!-- Edit Animal Modal -->
   <div class="modal" id="animalDetailModal">
     <div class="modal-content" style="max-width: 600px;">
       <button class="modal-close" onclick="closeModal('animalDetailModal')">×</button>
@@ -247,6 +307,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Edit Contact Modal -->
   <div class="modal" id="contactModal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('contactModal')">×</button>
@@ -260,6 +322,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Post Menu Modal -->
   <div class="modal" id="postMenuModal">
     <div class="modal-content" style="max-width: 300px;">
       <button class="modal-close" onclick="closeModal('postMenuModal')">×</button>
@@ -270,40 +334,42 @@
       </div>
     </div>
   </div>
+
+  <!-- Edit Post Modal -->
   <div class="modal" id="editPostModal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('editPostModal')">×</button>
       <h3>✏️ Edit Post</h3>
-      <textarea id="editPostText" rows="4" placeholder="What's on your mind?" style="width:100%; margin-bottom: 16px;"></textarea>
-      <div class="image-upload-group">
-        <label>Attach an image (optional)</label>
-        <div class="image-preview-small" id="editPostPreview" style="background-size: cover; background-position: center; width: 100px; height: 100px; border: 2px dashed #ccc; border-radius: 12px;"></div>
-        <input type="file" id="editPostImageInput" accept="image/*" style="margin-top: 8px;">
-        <button type="button" class="btn btn-secondary" onclick="removePostImage()" style="margin-top: 8px;">Remove Image</button>
-      </div>
+      <textarea id="editPostText" rows="4" placeholder="What's on your mind?" style="width:100%; margin-bottom: 16px; resize: vertical;"></textarea>
       <div class="modal-buttons">
         <button class="save-btn" onclick="savePostEdit()">💾 Save</button>
         <button class="cancel-btn" onclick="closeModal('editPostModal')">❌ Cancel</button>
       </div>
     </div>
   </div>
+
+  <!-- Edit Comment Modal -->
   <div class="modal" id="commentEditModal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('commentEditModal')">×</button>
       <h3>✏️ Edit Comment</h3>
-      <textarea id="editCommentText" rows="3" placeholder="Edit your comment..." style="width:100%; margin-bottom: 16px;"></textarea>
+      <textarea id="editCommentText" rows="3" placeholder="Edit your comment..." style="width:100%; margin-bottom: 16px; resize: vertical;"></textarea>
       <div class="modal-buttons">
         <button class="save-btn" onclick="saveCommentEdit()">💾 Save</button>
         <button class="cancel-btn" onclick="closeModal('commentEditModal')">❌ Cancel</button>
       </div>
     </div>
   </div>
+
+  <!-- Lightbox Modal -->
   <div class="modal" id="lightboxModal">
     <div class="modal-content lightbox-content">
       <button class="modal-close" onclick="closeModal('lightboxModal')">×</button>
       <img id="lightboxImg" src="" alt="Full size">
     </div>
   </div>
+
+  <!-- View Animal Modal -->
   <div class="modal" id="viewAnimalModal">
     <div class="modal-content" style="max-width: 500px;">
       <button class="modal-close" onclick="closeModal('viewAnimalModal')">×</button>
@@ -311,10 +377,18 @@
       <div id="viewAnimalContent"></div>
     </div>
   </div>
-  <script src="../js/config.js"></script>
-  <script src="../js/general/utils.js"></script>
-  <script src="../js/general/auth.js"></script>
-  <script src="../js/profile.js"></script>
-  <script src="../js/general/main.js"></script>
+
+  <!-- ============================================ -->
+  <!-- SCRIPTS -->
+  <!-- ============================================ -->
+<!-- Scripts - Load in THIS EXACT ORDER -->
+<script src="../js/general/config.js"></script>
+<script src="../js/general/supabase-init.js"></script>
+<script src="../js/general/wait.js"></script>
+<script src="../js/general/utils.js"></script>
+<script src="../js/general/auth.js"></script>
+<script src="../js/general/storage.js"></script>
+<script src="../js/profile.js"></script>
+<script src="../js/general/main.js"></script>
 </body>
 </html>

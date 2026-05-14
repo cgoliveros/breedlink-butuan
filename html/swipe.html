@@ -138,8 +138,18 @@
       </div>
       <div class="matches-section">
         <div class="matches-header">
-          <h3><span>💚</span> Your Matches</h3>
+          <h3><span>💚</span> Breeders</h3>
           <span class="match-count" id="matchCount">0</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          <button id="tabLiked" onclick="renderBreedersTab('liked')"
+            style="flex:1;padding:8px 0;border:none;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;background:var(--green-primary);color:white;transition:all 0.2s;">
+            💚 Liked
+          </button>
+          <button id="tabPassed" onclick="renderBreedersTab('passed')"
+            style="flex:1;padding:8px 0;border:none;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg-secondary);color:var(--text-secondary);transition:all 0.2s;">
+            ✕ Passed
+          </button>
         </div>
         <div class="matches-list" id="matchesList">
           <div class="empty-matches">Start swiping to find matches!</div>
@@ -163,13 +173,44 @@
       </div>
       <p style="color: var(--text-secondary); margin-bottom: 20px;">You and <strong id="matchName"></strong> have liked each other!</p>
       <button class="empty-btn primary" onclick="messageMatch()">Send Message</button>
-      <button class="empty-btn secondary" onclick="closeMatch()">Keep Swiping</button>
+      <button class="empty-btn secondary" onclick="rateMatchBreeder()">⭐ Rate Breeder</button>
+      <button class="empty-btn secondary" onclick="closeMatch()" style="opacity:0.6;">Keep Swiping</button>
     </div>
   </div>
-  <script src="../js/config.js"></script>
-  <script src="../js/general/utils.js"></script>
-  <script src="../js/general/auth.js"></script>
-  <script src="../js/general/main.js"></script>
-  <script src="../js/swipe.js"></script>
+
+  <!-- Rate Breeder Modal -->
+  <div class="modal" id="rateModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:3000; align-items:center; justify-content:center;">
+    <div class="modal-content" style="max-width:420px; width:90%; background:var(--surface-white); border-radius:24px; padding:32px; position:relative;">
+      <button onclick="closeRateModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);">×</button>
+      <h3 style="margin-bottom:8px;">⭐ Rate Breeder</h3>
+      <p id="rateBreederName" style="color:var(--text-secondary); margin-bottom:20px;"></p>
+      <div id="starRating" style="display:flex; gap:8px; justify-content:center; margin-bottom:20px;">
+        <span class="star-btn" data-val="1" onclick="setRating(1)" style="font-size:36px;cursor:pointer;transition:transform 0.2s;">⭐</span>
+        <span class="star-btn" data-val="2" onclick="setRating(2)" style="font-size:36px;cursor:pointer;transition:transform 0.2s;">⭐</span>
+        <span class="star-btn" data-val="3" onclick="setRating(3)" style="font-size:36px;cursor:pointer;transition:transform 0.2s;">⭐</span>
+        <span class="star-btn" data-val="4" onclick="setRating(4)" style="font-size:36px;cursor:pointer;transition:transform 0.2s;">⭐</span>
+        <span class="star-btn" data-val="5" onclick="setRating(5)" style="font-size:36px;cursor:pointer;transition:transform 0.2s;">⭐</span>
+      </div>
+      <p id="rateSelectedText" style="text-align:center;color:var(--text-muted);margin-bottom:16px;">Select a rating</p>
+      <textarea id="rateComment" placeholder="Leave a comment (optional)..." rows="3" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border-light);font-size:14px;resize:none;box-sizing:border-box;margin-bottom:16px;"></textarea>
+      <button onclick="submitRating()" style="width:100%;padding:14px;background:var(--green-primary);color:white;border:none;border-radius:50px;font-size:15px;font-weight:600;cursor:pointer;">Submit Rating</button>
+    </div>
+  </div>
+
+  <!-- Breeder Profile Modal -->
+  <div class="modal" id="breederProfileModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:3000; align-items:center; justify-content:center; overflow-y:auto;">
+    <div class="modal-content" style="max-width:520px; width:90%; background:var(--surface-white); border-radius:24px; overflow:hidden; position:relative; margin:20px auto;">
+      <button onclick="closeBreederProfile()" style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.4);border:none;font-size:22px;cursor:pointer;color:white;border-radius:50%;width:36px;height:36px;z-index:1;">×</button>
+      <div id="breederProfileContent"></div>
+    </div>
+  </div>
+<script src="../js/general/config.js"></script>
+<script src="../js/general/supabase-init.js"></script>
+<script src="../js/general/wait.js"></script>
+<script src="../js/general/utils.js"></script>
+<script src="../js/general/auth.js"></script>
+<script src="../js/general/storage.js"></script>
+<script src="../js/swipe.js"></script>
+<script src="../js/general/main.js"></script>
 </body>
 </html>

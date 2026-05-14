@@ -126,6 +126,9 @@ body {
 
 .logo img {
   width: 140px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
@@ -377,6 +380,8 @@ body {
   
   .logo img {
     width: 100px;
+    height: auto;
+    object-fit: contain;
   }
   
   .nav-center {
@@ -481,6 +486,8 @@ body {
 @media (max-width: 500px) {
   .logo img {
     width: 80px;
+    height: auto;
+    object-fit: contain;
   }
   
   .search-toggle {

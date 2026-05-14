@@ -122,9 +122,24 @@
       </div>
     </div>
   </div>
-  <script src="../js/config.js"></script>
-  <script src="../js/general/utils.js"></script>
-  <script src="../js/general/auth.js"></script>
-  <script src="../js/sign_up.js"></script>
+
+<script src="../js/general/config.js"></script>
+<script src="../js/general/supabase-init.js"></script>
+<script src="../js/general/wait.js"></script>
+<script src="../js/general/utils.js"></script>
+<script src="../js/general/auth.js"></script>
+<script src="../js/general/storage.js"></script>
+<script src="../js/sign_up.js"></script>
+<script src="../js/general/main.js"></script>
+
+<script>
+    // Additional check to ensure everything is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Page loaded, checking dependencies...');
+        console.log('User object exists:', typeof User !== 'undefined');
+        console.log('User.signup exists:', typeof User !== 'undefined' && typeof User.signup === 'function');
+        console.log('Validators exists:', typeof Validators !== 'undefined');
+    });
+</script>
 </body>
 </html>

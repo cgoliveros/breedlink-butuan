@@ -161,6 +161,20 @@
       cursor: default;
     }
 
+    .card-1 {
+      top: -20px;
+      left: -30px;
+      animation: floatScale 3s ease-in-out infinite;
+      animation-delay: 0s;
+    }
+
+    .card-2 {
+      bottom: -20px;
+      right: -30px;
+      animation: floatScale 3s ease-in-out infinite;
+      animation-delay: 0.5s;
+    }
+
     @keyframes floatScale {
       0% {
         transform: translateY(0) translateX(0) scale(1);
@@ -244,14 +258,14 @@
     }
 
     .feature-icon {
-      width: 60px;
-      height: 60px;
+      width: 70px;
+      height: 70px;
       background: var(--green-light);
-      border-radius: 16px;
+      border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
+      font-size: 32px;
       margin-bottom: 24px;
       transition: all 0.3s var(--transition-bounce);
     }

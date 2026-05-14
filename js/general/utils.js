@@ -17,6 +17,14 @@ function showToast(message, type = 'success') {
   }, 3000);
 }
 
+// Make sure showToast exists
+if (typeof window.showToast === 'undefined') {
+    window.showToast = function(message, type = 'success') {
+        console.log(`${type}: ${message}`);
+        alert(message);
+    };
+}
+
 function initScrollReveal() {
   const revealElements = document.querySelectorAll('.reveal');
   if (revealElements.length === 0) return;
@@ -426,3 +434,14 @@ window.preloadImages = preloadImages;
 window.previewImage = previewImage;
 window.previewMultipleImages = previewMultipleImages;
 window.openLightbox = openLightbox;
+// ── escapeHtml — prevent XSS in dynamic HTML ─────────────────────────────
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+window.escapeHtml = escapeHtml;

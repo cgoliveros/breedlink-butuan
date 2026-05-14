@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Create Account | BreedLink</title>
+  <link rel="stylesheet" href="../css/general/main.css">
+  <link rel="stylesheet" href="../css/general/components.css">
+  <link rel="stylesheet" href="../css/general/responsive.css">
+  <link rel="stylesheet" href="../css/sign_up.css">
+  <style>
+    /* Terms checkbox enhancements */
+    .checkbox-group {
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      accent-color: var(--green-primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .checkbox-group label a.terms-link {
+      color: var(--green-primary);
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.2s;
+    }
+
+    .checkbox-group label a.terms-link:hover {
+      color: var(--green-dark);
+    }
+
+    /* Shake animation when user tries to proceed without checking */
+    @keyframes shakeError {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-6px); }
+      40%       { transform: translateX(6px); }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(4px); }
+    }
+
+    .checkbox-group.shake {
+      animation: shakeError 0.4s ease;
+      border: 1px solid #ef4444;
+      background: #fff1f0;
+    }
+
+    .checkbox-group.shake label {
+      color: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+  <div class="signup-container">
+    <div class="signup-card">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 33%"></div>
+        <div class="step active" id="step1">1</div>
+        <div class="step" id="step2">2</div>
+        <div class="step" id="step3">3</div>
+      </div>
+      <div class="logo-container">
+        <img src="https://raw.githubusercontent.com/himeh-pers/Breed-Link/refs/heads/main/68dbf8_3ea8704de93746e69e5a47c1a6bf8b17%7Emv2.png" alt="BreedLink">
+      </div>
+      <div class="signup-header">
+        <h2>Create Account</h2>
+        <p id="stepText">Let's start with the basics</p>
+      </div>
+
+      <!-- Step 1: Basic Info -->
+      <div class="form-step active" id="formStep1">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="fullName" placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="email" placeholder="breeder@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" class="form-input" id="phone" placeholder="+63 XXX XXX XXXX">
+        </div>
+        <button class="btn btn-primary" onclick="nextStep(2)">
+          Continue →
+        </button>
+      </div>
+
+      <!-- Step 2: Account Type -->
+      <div class="form-step" id="formStep2">
+        <p style="margin-bottom: 15px; color: var(--text-secondary); font-size: 14px;">I am a...</p>
+        <div class="account-types">
+          <div class="account-type selected" onclick="selectType(this, 'breeder')">
+            <span class="icon">🐕</span>
+            <span class="label">Breeder</span>
+          </div>
+          <div class="account-type" onclick="selectType(this, 'farmer')">
+            <span class="icon">🐄</span>
+            <span class="label">Farmer</span>
+          </div>
+          <div class="account-type" onclick="selectType(this, 'vet')">
+            <span class="icon">🩺</span>
+            <span class="label">Veterinarian</span>
+          </div>
+          <div class="account-type" onclick="selectType(this, 'enthusiast')">
+            <span class="icon">❤️</span>
+            <span class="label">Pet Lover</span>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="prevStep(1)">← Back</button>
+          <button class="btn btn-primary" onclick="nextStep(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Password + Terms -->
+      <div class="form-step" id="formStep3">
+        <div class="form-group">
+          <label class="form-label">Create Password</label>
+          <div class="input-wrapper">
+            <input type="password" class="form-input" id="password" placeholder="Min 8 characters"
+              oninput="updatePasswordStrength(this, document.getElementById('passwordStrength'))">
+            <button type="button" class="password-toggle" onclick="togglePassword('password', this)">👁️</button>
+          </div>
+          <div class="password-strength" id="passwordStrength">
+            <div class="strength-bar">
+              <div class="strength-segment" id="seg1"></div>
+              <div class="strength-segment" id="seg2"></div>
+              <div class="strength-segment" id="seg3"></div>
+            </div>
+            <div class="strength-text" id="strengthText">
+              <span>⚪</span> Enter a password
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <div class="input-wrapper">
+            <input type="password" class="form-input" id="confirmPassword" placeholder="Repeat password">
+            <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)">👁️</button>
+          </div>
+        </div>
+
+        <!-- ✅ Terms checkbox — links to terms.html, blocks signup if unchecked -->
+        <div class="checkbox-group" id="termsCheckboxGroup">
+          <input type="checkbox" id="terms">
+          <label for="terms">
+            I have read and agree to the
+            <a href="terms.html" class="terms-link" target="_blank" onclick="event.stopPropagation()">Terms &amp; Conditions</a>
+            and
+            <a href="terms.html" class="terms-link" target="_blank" onclick="event.stopPropagation()">Privacy Policy</a>
+          </label>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="prevStep(2)">← Back</button>
+          <button class="btn btn-primary" id="createBtn" onclick="createAccount()">Create Account</button>
+        </div>
+      </div>
+
+      <!-- Success State -->
+      <div class="success-state" id="successState">
+        <div class="success-icon">✓</div>
+        <h3>Welcome Aboard!</h3>
+        <p>Your account has been created successfully.</p>
+        <button class="btn btn-primary" onclick="window.location.href='profile.html'">
+          Go to Profile →
+        </button>
+      </div>
+
+      <div class="login-link">
+        Already have an account? <a href="login.html">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+<script src="../js/general/config.js"></script>
+<script src="../js/general/supabase-init.js"></script>
+<script src="../js/general/wait.js"></script>
+<script src="../js/general/utils.js"></script>
+<script src="../js/general/auth.js"></script>
+<script src="../js/general/storage.js"></script>
+<script src="../js/sign_up.js"></script>
+<script src="../js/general/main.js"></script>
+
+<script>
+  // Override createAccount to enforce the terms checkbox with visual feedback
+  const _originalCreateAccount = createAccount;
+
+  window.createAccount = async function () {
+    const termsCheckbox = document.getElementById('terms');
+    const termsGroup    = document.getElementById('termsCheckboxGroup');
+
+    if (!termsCheckbox || !termsCheckbox.checked) {
+      // Visual shake + highlight
+      if (termsGroup) {
+        termsGroup.classList.remove('shake');
+        void termsGroup.offsetWidth; // reflow to retrigger animation
+        termsGroup.classList.add('shake');
+        setTimeout(() => termsGroup.classList.remove('shake'), 500);
+      }
+      showToast('You must agree to the Terms & Conditions to create an account.', 'error');
+      return;
+    }
+
+    // All good — call the original
+    await _originalCreateAccount();
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('sign_up page loaded');
+  });
+</script>
+</body>
+</html>
